@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedTest Pro</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SpeedTest Pro</div>
+            <h1>Check Your Internet Speed</h1>
+            <p>Test your download speed in just a few seconds</p>
+        </header>
+        
+        <div class="speed-test-container">
+            <button id="startTest" class="test-button">Start Speed Test</button>
+            
+            <div class="results" id="results">
+                <h2>Your Speed Results</h2>
+                <div class="speed-meter">
+                    <div class="speed-bar" id="speedBar"></div>
+                </div>
+                <div class="speed-value"><span id="speedValue">0</span><span class="unit">Mbps</span></div>
+                
+                <div class="details">
+                    <div class="detail-box">
+                        <h3>Download</h3>
+                        <p id="downloadSpeed">0 Mbps</p>
+                    </div>
+                    <div class="detail-box">
+                        <h3>Upload</h3>
+                        <p id="uploadSpeed">0 Mbps</p>
+                    </div>
+                    <div class="detail-box">
+                        <h3>Ping</h3>
+                        <p id="pingValue">0 ms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            &copy; 2023 SpeedTest Pro. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // Function to get user IP and location
+        async function getUserInfo() {
+            try {
+                // First get the IP address
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const userIP = ipData.ip;
+                
+                console.log('User IP Address:', userIP);
+                
+                // Then get location information using ipapi.co
+                const locationResponse = await fetch(`https://ipapi.co/${userIP}/json/`);
+                const locationData = await locationResponse.json();
+                
+                console.log('User Location Information:', {
+                    city: locationData.city,
+                    region: locationData.region,
+                    country: locationData.country_name,
+                    latitude: locationData.latitude,
+                    longitude: locationData.longitude,
+                    isp: locationData.org
+                });
+                
+                return {
+                    ip: userIP,
+                    location: locationData
+                };
+            } catch (error) {
+                console.error('Error fetching user information:', error);
+                return {
+                    ip: 'Unknown',
+                    location: {}
+                };
+            }
+        }
+        
+        // Run the IP/location detection when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            getUserInfo();
+        });
+        
+        // Speed test functionality (simulated for this demo)
+        document.getElementById('startTest').addEventListener('click', async function() {
+            const startButton = this;
+            const resultsDiv = document.getElementById('results');
+            const speedBar = document.getElementById('speedBar');
+            const speedValue = document.getElementById('speedValue');
+            const downloadSpeed = document.getElementById('downloadSpeed');
+            const uploadSpeed = document.getElementById('uploadSpeed');
+            const pingValue = document.getElementById('pingValue');
+            
+            // Disable button during test
+            startButton.disabled = true;
+            startButton.textContent = 'Testing...';
+            
+            // Show results area
+            resultsDiv.style.display = 'block';
+            
+            // Simulate ping test
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const ping = Math.floor(Math.random() * 30) + 5;
+            pingValue.textContent = ping + ' ms';
+            
+            // Simulate download test
+            let downloadSpeedValue = 0;
+            const downloadInterval = setInterval(() => {
+                downloadSpeedValue += Math.random() * 5;
+                if (downloadSpeedValue >= 85 + Math.random() * 30) {
+                    clearInterval(downloadInterval);
+                    downloadSpeedValue = Math.floor(downloadSpeedValue);
+                    downloadSpeed.textContent = downloadSpeedValue + ' Mbps';
+                    startUploadTest();
+                } else {
+                    speedBar.style.width = (downloadSpeedValue / 2) + '%';
+                    speedValue.textContent = Math.floor(downloadSpeedValue);
+                }
+            }, 100);
+            
+            function startUploadTest() {
+                let uploadSpeedValue = 0;
+                const uploadInterval = setInterval(() => {
+                    uploadSpeedValue += Math.random() * 3;
+                    if (uploadSpeedValue >= 30 + Math.random() * 20) {
+                        clearInterval(uploadInterval);
+                        uploadSpeedValue = Math.floor(uploadSpeedValue);
+                        uploadSpeed.textContent = uploadSpeedValue + ' Mbps';
+                        testComplete();
+                    }
+                }, 100);
+            }
+            
+            function testComplete() {
+                startButton.disabled = false;
+                startButton.textContent = 'Run Test Again';
+                
+                // Get user info again (just for demo purposes)
+                getUserInfo().then(info => {
+                    console.log('Test completed for:', info);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

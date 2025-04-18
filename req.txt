@@ -1,0 +1,4 @@
+npm init -y
+npm install express request-promise
+npm install express public-ip geoip-lite
+npm install express geoip-lite request-promise ngrok dotenv
